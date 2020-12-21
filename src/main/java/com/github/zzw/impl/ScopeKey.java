@@ -1,4 +1,4 @@
-package zzw;
+package com.github.zzw.impl;
 
 import java.util.function.Supplier;
 

@@ -1,13 +1,15 @@
-package zzw;
+package com.github.zzw.impl;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.phantomthief.util.ThrowableRunnable;
-import com.github.phantomthief.util.ThrowableSupplier;
+import com.github.zzw.ThrowableRunnable;
+import com.github.zzw.ThrowableSupplier;
+
 
 /**
  * @author zhangzhewei
  */
+@SuppressWarnings("unchecked")
 public final class Scope {
 
     private static final ThreadLocal<Scope> SCOPE_THREAD_LOCAL = new ThreadLocal<>();
@@ -22,7 +24,7 @@ public final class Scope {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    
     public <T> T get(ScopeKey<T> key) {
         T value = (T) values.get(key);
         if (value == null && key.getInitializer() != null) {
@@ -52,8 +54,8 @@ public final class Scope {
         return SCOPE_THREAD_LOCAL.get();
     }
 
-    public static <T, X extends Throwable> T supplyWithNewScope(ThrowableSupplier<T, X> supplier)
-            throws X {
+    public static <T, E extends Throwable> T supplyWithNewScope(ThrowableSupplier<T, E> supplier)
+            throws E {
         beginScope();
         try {
             return supplier.get();
@@ -62,16 +64,16 @@ public final class Scope {
         }
     }
 
-    public static <X extends Throwable> void runWithNewScope(ThrowableRunnable<X> runnable)
-            throws X {
+    public static <E extends Throwable> void runWithNewScope(ThrowableRunnable<E> runnable)
+            throws E {
         supplyWithNewScope(() -> {
             runnable.run();
             return null;
         });
     }
 
-    public static <T, X extends Throwable> T supplyWithExistScope(Scope scope,
-            ThrowableSupplier<T, X> supplier) throws X {
+    public static <T, E extends Throwable> T supplyWithExistScope(Scope scope,
+            ThrowableSupplier<T, E> supplier) throws E {
         Scope oldScope = SCOPE_THREAD_LOCAL.get();
         SCOPE_THREAD_LOCAL.set(scope);
         try {
@@ -85,8 +87,8 @@ public final class Scope {
         }
     }
 
-    public static <X extends Throwable> void runWithExistScope(Scope scope,
-            ThrowableRunnable<X> runnable) throws X {
+    public static <E extends Throwable> void runWithExistScope(Scope scope,
+            ThrowableRunnable<E> runnable) throws E {
         supplyWithExistScope(scope, () -> {
             runnable.run();
             return null;
